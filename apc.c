@@ -121,7 +121,7 @@ int main(int argc, char *argv[]) {
             }
         }
 
-        setup_apc(self_path);
+        setup_apc();
     } else if (strcmp(argv[1], "install") == 0) {
         check_apc_installed();
         if (argc < 3) {

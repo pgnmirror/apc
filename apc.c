@@ -1,3 +1,25 @@
+/*
+ *  APC - AuriLinux Packet Manager
+ *  Copyright (C) 2025 LICGX Team
+ *
+ *  This program is free software; you can redistribute it and/or modify
+ *  it under the terms of the GNU General Public License as published by
+ *  the Free Software Foundation; either version 2 of the License, or
+ *  (at your option) any later version.
+ *
+ *  This program is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *  GNU General Public License for more details.
+ *
+ *  You should have received a copy of the GNU General Public License
+ *  along with this program; if not, write to the Free Software Foundation,
+ *  Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
+ *
+ *  Licensed under GPLv2
+ */
+
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
@@ -26,21 +48,12 @@ void check_apc_installed() {
     }
 }
 
-void setup_apc(const char *self_path) {
-    printf("Looks like this is the first launch of APC.\n");
-    printf("Setup starting..\n\n");
+void setup_apc() {
+    system("pacman -S wget"); // install wget
+    if (system("cp /usr/bin/apc /bin/apc && chmod 755 /bin/apc") == 0)
+        return;
 
-    char cmd[PATH_MAX];
-
-    printf("[1/2] Copying apc binary to /usr/bin\n");
-    snprintf(cmd, sizeof(cmd), "cp %s /usr/bin/apc && chmod 755 /usr/bin/apc", self_path);
-    system(cmd);
-
-    printf("[2/2] Copying apc binary to /bin/\n");
-    snprintf(cmd, sizeof(cmd), "cp %s /bin/apc && chmod 755 /bin/apc", self_path);
-    system(cmd);
-
-    printf("...done\n");
+    system("cp /bin/apc /usr/bin/apc && chmod 755 /usr/bin/apc");
 }
 
 int url_exists(const char *pkgname) {
@@ -96,10 +109,18 @@ int main(int argc, char *argv[]) {
 
     if (strcmp(argv[1], "setup") == 0) {
         char self_path[PATH_MAX];
+
         if (realpath(argv[0], self_path) == NULL) {
-            perror("realpath");
-            return 1;
+            char cwd[PATH_MAX];
+            if (getcwd(cwd, sizeof(cwd)) != NULL) {
+                snprintf(self_path, sizeof(self_path), "%s/%s", cwd, argv[0]);
+                printf("Warning: couldn't resolve full path, using %s\n", self_path);
+            } else {
+                perror("realpath/getcwd");
+                return 1;
+            }
         }
+
         setup_apc(self_path);
     } else if (strcmp(argv[1], "install") == 0) {
         check_apc_installed();

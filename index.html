@@ -27,6 +27,20 @@
   main {
     padding: 20px;
   }
+  .controls {
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    gap: 10px;
+  }
+  select {
+    background-color: #1f1f1f;
+    color: #00ffff;
+    border: 1px solid #00ffff;
+    padding: 5px;
+    border-radius: 4px;
+    font-family: monospace;
+  }
   table {
     width: 100%;
     border-collapse: collapse;
@@ -60,8 +74,16 @@
   <h1>APC <small>AuriLinux Packet Manager</small></h1>
 </header>
 <main>
+  <div class="controls">
+    <label for="archFilter">Sort by arch:</label>
+    <select id="archFilter">
+      <option value="all">All</option>
+      <option value="x86_64">x86_64</option>
+      <option value="x86">x86</option>
+    </select>
+  </div>
   <h2>List of packages down here</h2>
-  <table>
+  <table id="packageTable">
     <thead>
       <tr>
         <th>Package name</th>
@@ -94,24 +116,46 @@
         <td>1.0-1</td>
         <td>27.10.2025</td>
         <td>x86_64</td>
+      </tr>
       <tr>
         <td><a href="apc" download>apc-static</a></td>
-        <td>1.0-2</td>
+        <td>1.1-0</td>
         <td>28.10.2025</td>
         <td>x86_64</td>
+      </tr>
       <tr>
         <td><a href="apc32" download>apc-static32</a></td>
-        <td>1.0-2</td>
+        <td>1.1-0</td>
         <td>28.10.2025</td>
         <td>x86</td>
+      </tr>
       <tr>
         <td><a href="aurihelp" download>aurihelp</a></td>
         <td>1.0-1</td>
         <td>28.10.2025</td>
-        <td>x86-64</td>
+        <td>x86_64</td>
+      </tr>
+      <tr>
+        <td><a href="aurihelp32" download>aurihelp32</a></td>
+        <td>1.0-1</td>
+        <td>29.10.2025</td>
+        <td>x86</td>
       </tr>
     </tbody>
   </table>
 </main>
+
+<script>
+  const filter = document.getElementById('archFilter');
+  const rows = document.querySelectorAll('#packageTable tbody tr');
+
+  filter.addEventListener('change', () => {
+    const val = filter.value;
+    rows.forEach(row => {
+      const arch = row.cells[3].textContent.trim();
+      row.style.display = (val === 'all' || arch === val) ? '' : 'none';
+    });
+  });
+</script>
 </body>
 </html>
